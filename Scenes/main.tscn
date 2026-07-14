@@ -1,22 +1,11 @@
 [gd_scene format=3 uid="uid://ccsb8nrubr0gh"]
 
 [ext_resource type="Script" uid="uid://dvjdj4qe0y62x" path="res://Scripts/gameManager.gd" id="1_8gbba"]
-[ext_resource type="Script" uid="uid://cptlc5jvtt4vc" path="res://Scripts/software_manager.gd" id="2_jjvhh"]
+[ext_resource type="Script" uid="uid://cptlc5jvtt4vc" path="res://Scripts/softwareManager.gd" id="2_jjvhh"]
 [ext_resource type="Script" uid="uid://k3kcx8yschmm" path="res://Scripts/ui.gd" id="3_kry3j"]
-[ext_resource type="Texture2D" uid="uid://ew5ms031e4pj" path="res://Meshes/test_level_grass.png" id="4_jjvhh"]
 [ext_resource type="Script" uid="uid://b74vy5tuqjgw6" path="res://Scripts/worldSounds.gd" id="5_kry3j"]
 [ext_resource type="PackedScene" uid="uid://e1qhtm5mgnv1" path="res://Explorer/Scenes/explorer.tscn" id="6_21xkr"]
-[ext_resource type="Script" uid="uid://n70hp385jon6" path="res://Scripts/Chunk.gd" id="8_344ge"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kry3j"]
-albedo_texture = ExtResource("4_jjvhh")
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_vg3v4"]
-material = SubResource("StandardMaterial3D_kry3j")
-size = Vector2(10, 10)
-
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_21xkr"]
-points = PackedVector3Array(5.077377, 0.07933401, 5.077377, -5.077377, -0.07933401, -5.077377, -5.077377, 0.07933401, -5.077377, 5.077377, -0.07933401, -5.077377, -5.077377, -0.07933401, 5.077377, -5.077377, 0.07933401, 5.077377, 5.077377, 0.07933401, -5.077377, 5.077377, -0.07933401, 5.077377)
+[ext_resource type="Script" uid="uid://n70hp385jon6" path="res://Scripts/terrainManager.gd" id="8_344ge"]
 
 [node name="Main" type="Node" unique_id=1720225136]
 
@@ -37,14 +26,6 @@ script = ExtResource("3_kry3j")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=382260316]
 
-[node name="SaftyFloor" type="MeshInstance3D" parent="." unique_id=1288024578]
-mesh = SubResource("PlaneMesh_vg3v4")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="SaftyFloor" unique_id=870778342]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="SaftyFloor/StaticBody3D" unique_id=1999235102]
-shape = SubResource("ConvexPolygonShape3D_21xkr")
-
 [node name="WorldSounds" type="AudioStreamPlayer" parent="." unique_id=657812470]
 script = ExtResource("5_kry3j")
 
@@ -56,26 +37,26 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 visible = false
 
 [node name="Skeleton3D" parent="Explorer/Mesh/HeroRig_export" parent_id_path=PackedInt32Array(856860738, 931582133, 885429918) index="0" unique_id=1340250868]
-bones/0/position = Vector3(0.010340925, 1.0999041, 0.0011402646)
-bones/1/rotation = Quaternion(0.72814494, -0.017132403, -0.016661966, 0.68500644)
-bones/2/rotation = Quaternion(-0.7944993, -0.08347722, -0.035028744, 0.6004795)
-bones/3/rotation = Quaternion(0.2889127, -0.0040176823, 0.024198381, 0.95704114)
-bones/4/rotation = Quaternion(-0.17532437, -0.012870183, 0.08440212, 0.98080176)
-bones/5/rotation = Quaternion(-0.79594773, 0.12473119, 0.08884921, 0.585675)
-bones/6/rotation = Quaternion(0.3091641, 0.003990857, -0.025894586, 0.9506478)
-bones/7/rotation = Quaternion(-0.18369424, 0.009474111, -0.10254324, 0.9775744)
-bones/8/rotation = Quaternion(0.9939835, -0.0026287464, -0.0001564514, -0.1094993)
-bones/10/rotation = Quaternion(-0.7477892, 0.024535347, 0.017212087, 0.66325945)
-bones/11/rotation = Quaternion(0.9799175, 0.18707252, 0.032126937, -0.06110193)
-bones/12/rotation = Quaternion(-0.30354944, 0.006770861, -0.024297846, 0.9524818)
-bones/13/rotation = Quaternion(-0.04643068, -0.11929053, 0.21427815, 0.96834856)
-bones/18/rotation = Quaternion(-5.000394e-08, -0.034217052, -2.0774355e-06, 0.99941444)
-bones/20/rotation = Quaternion(0.9811489, -0.18818018, -0.04395226, -0.001834387)
-bones/21/rotation = Quaternion(-0.397438, -0.0065198583, 0.031813495, 0.9170543)
-bones/22/rotation = Quaternion(0.04640241, 0.06435907, -0.046351377, 0.99576926)
-bones/28/rotation = Quaternion(-7.374541e-08, -0.0022826109, 2.1861433e-06, 0.99999744)
+bones/0/position = Vector3(-0.024505287, 1.0958378, 0.0022639337)
+bones/1/rotation = Quaternion(0.7283706, -0.0022205594, -0.00050900667, 0.68517965)
+bones/2/rotation = Quaternion(-0.7931663, -0.1072544, -0.07470734, 0.59481317)
+bones/3/rotation = Quaternion(0.2943448, -0.0040106736, 0.024653377, 0.9553728)
+bones/4/rotation = Quaternion(-0.17614283, -0.013855237, 0.10831291, 0.97828937)
+bones/5/rotation = Quaternion(-0.8048735, 0.10183165, 0.051739976, 0.5823504)
+bones/6/rotation = Quaternion(0.33007115, 0.003961026, -0.02764571, 0.94354284)
+bones/7/rotation = Quaternion(-0.19852719, 0.007422719, -0.078413874, 0.97692543)
+bones/8/rotation = Quaternion(0.99677867, 0.00585821, 0.0001885373, -0.07998696)
+bones/10/rotation = Quaternion(-0.7065913, 0.117512666, 0.09455917, 0.6913596)
+bones/11/rotation = Quaternion(0.9792883, 0.18759559, 0.04537616, -0.061184388)
+bones/12/rotation = Quaternion(-0.3268948, 0.0067155636, -0.026166359, 0.94467455)
+bones/13/rotation = Quaternion(-0.045571133, -0.13210915, 0.21132606, 0.96737367)
+bones/18/rotation = Quaternion(-1.1605407e-07, -0.047113363, -2.1007108e-06, 0.9988896)
+bones/20/rotation = Quaternion(0.9812184, -0.184528, -0.05470691, -0.012923052)
+bones/21/rotation = Quaternion(-0.34588736, -0.006667649, 0.027686594, 0.93784386)
+bones/22/rotation = Quaternion(0.035921205, 0.095442, -0.05762053, 0.99311656)
+bones/28/rotation = Quaternion(-1.4495217e-07, 0.02829515, 2.1601966e-06, 0.9995997)
 
-[node name="Chunk" type="Node" parent="." unique_id=1113510514]
+[node name="TerrainManager" type="Node" parent="." unique_id=1113510514]
 script = ExtResource("8_344ge")
 noise_frequency = 0.005
 resolution = 48
