@@ -1,11 +1,24 @@
 extends Node
 
+# offsets to nearest chunk indexes, starting from where we are
+const CLOSE_GRID = [
+	Vector2i(0, 0),
+	Vector2i(-1, 0),
+	Vector2i(1, 0),
+	Vector2i(0, -1),
+	Vector2i(0, 1),
+	Vector2i(-1, -1),
+	Vector2i(1, 1),
+	Vector2i(1, -1),
+	Vector2i(-1, 1)
+]
 const size := 256.0
 var noise: FastNoiseLite
 var terrainShader: Shader
 var color_gradient
 var noise_texture: NoiseTexture2D
 var chunks := {}
+var lastPosition := Vector3.ZERO
 
 # Perlin noise parameters
 @export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.1
@@ -22,10 +35,14 @@ var chunks := {}
 	set(new_height):
 		height = new_height
 
+var player: Player
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	print("Chunk on ready called")
-
+	player = get_parent().find_child("Explorer")
+	if player:
+		print("Found the player")
 	noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	noise.frequency = noise_frequency
@@ -40,29 +57,27 @@ func _ready() -> void:
 	noise_texture.noise = noise
 	noise_texture.as_normal_map = true
 	noise_texture.seamless = true
-
 	createTerrainChunk(Vector2i(0, 0))
-	createTerrainChunk(Vector2i(0, 1))
-	createTerrainChunk(Vector2i(1, 1))
-	createTerrainChunk(Vector2i(1, 0))
-	createTerrainChunk(Vector2i(1, -1))
-	createTerrainChunk(Vector2i(0, -1))
-	createTerrainChunk(Vector2i(-1, -1))
-	createTerrainChunk(Vector2i(-1, 0))
-	createTerrainChunk(Vector2i(-1, 1))
+	return
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta: float) -> void:
+	var playerIndex := Vector2i(0, 0)
+	if player:
+		var playerLocation := player.global_position
+		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
+		if playerLocation.distance_to(lastPosition) > 10.0:
+			lastPosition = playerLocation
+			for offset in CLOSE_GRID:
+				var chunk := findChunk(playerIndex + offset)
+				if not chunk:
+					createTerrainChunk(playerIndex + offset)
+					break
 	
-	# Checking for presence of a chunk?
-	findChunk(Vector2i(1, -1))
-	findChunk(Vector2i(-7, 30))
-	
-func findChunk(index: Vector2i) -> bool:
+func findChunk(index: Vector2i) -> MeshInstance3D:
 	var chunkName := getChunkName(index)
 	var chunk: MeshInstance3D = chunks.get(chunkName)
-	if chunk:
-		print("Found ", chunkName)
-		return true
-	print("Not found ", chunkName)
-	return false
+	return chunk
 
 func getChunkName(index: Vector2i) -> String:
 	return "Chunk_" + str(index.x) + "_" + str(index.y)
@@ -72,12 +87,10 @@ func createTerrainChunk(index: Vector2i) -> void:
 	var chunk := MeshInstance3D.new()
 	var chunkName := getChunkName(index)
 	chunk.name = chunkName
-	var transform := chunk.transform
-	print("Name: ", chunk.name, " - ", transform)
 	var move := Vector3(index.x * size, 0.0, index.y * size)
 	print("Move: ", move)
-	chunk.translate(move)
-	print("Name: ", chunk.name, " - ", chunk.transform)
+	chunk.position += move
+	print("Name: ", chunk.name, " - ", chunk.position)
 	
 	print("Creating Material")
 	var meshMaterial = ShaderMaterial.new()
@@ -108,17 +121,16 @@ func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
 		var vertex := vertex_array[i]
 		var normal := Vector3.UP
 		var tangent := Vector3.RIGHT
-		if noise:
-			# have to add in mesh location / translation
-			vertex.y = get_height(vertex.x + offset.x, vertex.z + offset.z)
-			normal = get_normal(vertex.x + offset.x, vertex.z + offset.z)
-			tangent = normal.cross(Vector3.UP)
+		# have to add in mesh location / translation
+		vertex.y = get_height(vertex.x + offset.x, vertex.z + offset.z)
+		normal = get_normal(vertex.x + offset.x, vertex.z + offset.z)
+		tangent = normal.cross(Vector3.UP)
 		vertex_array[i] = vertex
 		normal_array[i] = normal
 		tangent_array[4 * i] = tangent.x
 		tangent_array[4 * i + 1] = tangent.y
 		tangent_array[4 * i + 2] = tangent.z
-	
+
 	var array_mesh := ArrayMesh.new()
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, plane_arrays)
 	array_mesh.surface_set_material(0, meshMaterial)
