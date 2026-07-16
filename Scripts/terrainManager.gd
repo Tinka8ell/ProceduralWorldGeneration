@@ -18,7 +18,6 @@ var terrainShader: Shader
 var color_gradient
 var noise_texture: NoiseTexture2D
 var chunks := {}
-var lastPosition := Vector3.ZERO
 
 # Perlin noise parameters
 @export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.1
@@ -57,7 +56,6 @@ func _ready() -> void:
 	noise_texture.noise = noise
 	noise_texture.as_normal_map = true
 	noise_texture.seamless = true
-	createTerrainChunk(Vector2i(0, 0))
 	return
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -66,13 +64,11 @@ func _process(_delta: float) -> void:
 	if player:
 		var playerLocation := player.global_position
 		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
-		if playerLocation.distance_to(lastPosition) > 10.0:
-			lastPosition = playerLocation
-			for offset in CLOSE_GRID:
-				var chunk := findChunk(playerIndex + offset)
-				if not chunk:
-					createTerrainChunk(playerIndex + offset)
-					break
+		for offset in CLOSE_GRID:
+			var chunk := findChunk(playerIndex + offset)
+			if not chunk:
+				createTerrainChunk(playerIndex + offset)
+				break
 	
 func findChunk(index: Vector2i) -> MeshInstance3D:
 	var chunkName := getChunkName(index)
