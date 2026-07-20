@@ -15,14 +15,17 @@ const CLOSE_GRID = [
 const size := 256.0
 var noise: FastNoiseLite
 var terrainShader: Shader
+var waterShader: Shader
 var color_gradient
 var noise_texture: NoiseTexture2D
 var chunks := {}
+var waterChunk: PackedScene
 
 # Perlin noise parameters
 @export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.1
 @export var noise_seed := 12345
 @export var noise_offset := Vector3.ZERO
+@export var playerLocation := Vector3(0, 0, 0)
 
 # Chuck adjustable parameters
 @export_range(4, 256, 4) var resolution := 32:
@@ -51,6 +54,8 @@ func _ready() -> void:
 	
 	color_gradient = preload("res://Terrain/gradient_texture.tres")
 	terrainShader = preload("res://Terrain/terrain.gdshader")
+	waterShader = preload("res://Water/WaterShader.tres")
+	waterChunk = preload("res://Scenes/WaterChunk.tscn")
 	
 	noise_texture = NoiseTexture2D.new()
 	noise_texture.noise = noise
@@ -62,11 +67,12 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	var playerIndex := Vector2i(0, 0)
 	if player:
-		var playerLocation := player.global_position
+		playerLocation = player.global_position
 		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
 		for offset in CLOSE_GRID:
 			var chunk := findChunk(playerIndex + offset)
 			if not chunk:
+				print("Creating chunk ", getChunkName(playerIndex + offset), " -", playerLocation)
 				createTerrainChunk(playerIndex + offset)
 				break
 	
@@ -98,6 +104,7 @@ func createTerrainChunk(index: Vector2i) -> void:
 	add_child(chunk)
 	chunks.set(chunkName, chunk)
 	update_mesh(chunk, meshMaterial)
+	addWaterToChunk(chunk)
 
 func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
 	if not noise or not chunk:
@@ -147,3 +154,13 @@ func get_normal(x: float, y: float) -> Vector3:
 		(get_height(x, y + epsilon) - get_height(x, y - epsilon)) / (2.0 * epsilon),
 	)
 	return normal.normalized()
+
+func addWaterToChunk(chunk: MeshInstance3D) -> void:
+	if not waterChunk or not chunk:
+		return
+	print("Adding Water")
+	var water = waterChunk.instantiate()
+	var move := Vector3(0, -12, 0)
+	water.position += move
+	chunk.add_child(water)
+	return

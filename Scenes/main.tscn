@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://ccsb8nrubr0gh"]
 
+[ext_resource type="PackedScene" uid="uid://bgimt645hpq77" path="res://Scenes/WaterChunk.tscn" id="1_6bp64"]
 [ext_resource type="Script" uid="uid://dvjdj4qe0y62x" path="res://Scripts/gameManager.gd" id="1_8gbba"]
 [ext_resource type="Script" uid="uid://cptlc5jvtt4vc" path="res://Scripts/softwareManager.gd" id="2_jjvhh"]
 [ext_resource type="Script" uid="uid://k3kcx8yschmm" path="res://Scripts/ui.gd" id="3_kry3j"]
@@ -10,6 +11,10 @@
 [node name="Main" type="Node" unique_id=1720225136]
 
 [node name="World" type="Node3D" parent="." unique_id=1625653772]
+
+[node name="Water" parent="World" unique_id=1623311931 instance=ExtResource("1_6bp64")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.006, -12, -0.004)
+visible = false
 
 [node name="GameManager" type="Node" parent="." unique_id=108972551]
 script = ExtResource("1_8gbba")
@@ -37,26 +42,26 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 visible = false
 
 [node name="Skeleton3D" parent="Explorer/Mesh/HeroRig_export" parent_id_path=PackedInt32Array(856860738, 931582133, 885429918) index="0" unique_id=1340250868]
-bones/0/position = Vector3(-0.030425355, 1.0922393, -0.0035321093)
-bones/1/rotation = Quaternion(0.72834724, 0.006363898, 0.008783, 0.68512255)
-bones/2/rotation = Quaternion(-0.798905, -0.11797007, -0.091947965, 0.5825629)
-bones/3/rotation = Quaternion(0.31239644, -0.003986378, 0.026165327, 0.9495831)
-bones/4/rotation = Quaternion(-0.18166035, -0.012494861, 0.113286644, 0.97673416)
-bones/5/rotation = Quaternion(-0.80962676, 0.09115218, 0.03718695, 0.57863027)
-bones/6/rotation = Quaternion(0.33670002, 0.0039511067, -0.028200915, 0.9411813)
-bones/7/rotation = Quaternion(-0.19956149, 0.0080972565, -0.07280393, 0.9771434)
-bones/8/rotation = Quaternion(0.9970423, 0.007818903, 0.00023454713, -0.07645561)
-bones/10/rotation = Quaternion(-0.7040282, 0.1215111, 0.09790662, 0.6928157)
-bones/11/rotation = Quaternion(0.9794908, 0.18531188, 0.047681693, -0.06311673)
-bones/12/rotation = Quaternion(-0.35616648, 0.006639367, -0.028509453, 0.9339639)
-bones/13/rotation = Quaternion(-0.045942456, -0.13444927, 0.21321182, 0.9666197)
-bones/18/rotation = Quaternion(-1.4048149e-07, -0.048501648, -2.0883638e-06, 0.9988231)
-bones/20/rotation = Quaternion(0.97683555, -0.19961768, -0.03773286, -0.0672416)
-bones/21/rotation = Quaternion(-0.35904607, -0.0066321893, 0.028740142, 0.9328537)
-bones/22/rotation = Quaternion(0.008829135, 0.054681547, -0.07912934, 0.9953244)
-bones/28/rotation = Quaternion(-3.4057166e-08, -0.014736024, 2.185405e-06, 0.99989146)
+bones/0/position = Vector3(0.018986562, 1.0760301, -0.00044834483)
+bones/1/rotation = Quaternion(0.7283751, -0.0006670452, 0.0011779099, 0.68517745)
+bones/2/rotation = Quaternion(-0.8210824, -0.100810155, -0.06127611, 0.55848575)
+bones/3/rotation = Quaternion(0.3842221, -0.0038734009, 0.03218122, 0.92267156)
+bones/4/rotation = Quaternion(-0.22591352, -0.0054171314, 0.081476204, 0.97071904)
+bones/5/rotation = Quaternion(-0.81300634, 0.11004185, 0.07972202, 0.56617653)
+bones/6/rotation = Quaternion(0.36240923, 0.0039105397, -0.030354232, 0.93151647)
+bones/7/rotation = Quaternion(-0.21196975, 0.009135261, -0.105519034, 0.97152007)
+bones/8/rotation = Quaternion(0.99118626, -0.0002867289, -2.5138303e-05, -0.13247566)
+bones/10/rotation = Quaternion(-0.773391, -0.013920184, -0.015301789, 0.63359183)
+bones/11/rotation = Quaternion(0.98047495, 0.184439, 0.024220193, -0.06375468)
+bones/12/rotation = Quaternion(-0.30427516, 0.0067691673, -0.024355926, 0.9522488)
+bones/13/rotation = Quaternion(-0.046570096, -0.11150097, 0.21653995, 0.96876687)
+bones/18/rotation = Quaternion(-7.505781e-08, -0.026667489, -2.0997743e-06, 0.9996444)
+bones/20/rotation = Quaternion(0.9792658, -0.20076118, -0.026795786, -0.003949884)
+bones/21/rotation = Quaternion(-0.3364425, -0.0066920193, 0.026930934, 0.94129515)
+bones/22/rotation = Quaternion(-0.007398632, 0.017698051, -0.032327723, 0.9992933)
+bones/28/rotation = Quaternion(2.5617855e-08, -0.05074736, 2.1861172e-06, 0.9987115)
 
-[node name="TerrainManager" type="Node" parent="." unique_id=1113510514]
+[node name="TerrainManager" type="Node3D" parent="." unique_id=1733999113]
 script = ExtResource("8_344ge")
 noise_frequency = 0.005
 resolution = 48
