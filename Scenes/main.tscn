@@ -42,30 +42,27 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 visible = false
 
 [node name="Skeleton3D" parent="Explorer/Mesh/HeroRig_export" parent_id_path=PackedInt32Array(856860738, 931582133, 885429918) index="0" unique_id=1340250868]
-bones/0/position = Vector3(0.018986562, 1.0760301, -0.00044834483)
-bones/1/rotation = Quaternion(0.7283751, -0.0006670452, 0.0011779099, 0.68517745)
-bones/2/rotation = Quaternion(-0.8210824, -0.100810155, -0.06127611, 0.55848575)
-bones/3/rotation = Quaternion(0.3842221, -0.0038734009, 0.03218122, 0.92267156)
-bones/4/rotation = Quaternion(-0.22591352, -0.0054171314, 0.081476204, 0.97071904)
-bones/5/rotation = Quaternion(-0.81300634, 0.11004185, 0.07972202, 0.56617653)
-bones/6/rotation = Quaternion(0.36240923, 0.0039105397, -0.030354232, 0.93151647)
-bones/7/rotation = Quaternion(-0.21196975, 0.009135261, -0.105519034, 0.97152007)
-bones/8/rotation = Quaternion(0.99118626, -0.0002867289, -2.5138303e-05, -0.13247566)
-bones/10/rotation = Quaternion(-0.773391, -0.013920184, -0.015301789, 0.63359183)
-bones/11/rotation = Quaternion(0.98047495, 0.184439, 0.024220193, -0.06375468)
-bones/12/rotation = Quaternion(-0.30427516, 0.0067691673, -0.024355926, 0.9522488)
-bones/13/rotation = Quaternion(-0.046570096, -0.11150097, 0.21653995, 0.96876687)
-bones/18/rotation = Quaternion(-7.505781e-08, -0.026667489, -2.0997743e-06, 0.9996444)
-bones/20/rotation = Quaternion(0.9792658, -0.20076118, -0.026795786, -0.003949884)
-bones/21/rotation = Quaternion(-0.3364425, -0.0066920193, 0.026930934, 0.94129515)
-bones/22/rotation = Quaternion(-0.007398632, 0.017698051, -0.032327723, 0.9992933)
-bones/28/rotation = Quaternion(2.5617855e-08, -0.05074736, 2.1861172e-06, 0.9987115)
+bones/0/position = Vector3(0.011687518, 1.089399, -0.007888768)
+bones/1/rotation = Quaternion(0.7283751, 0.00051660114, 0.0024603321, 0.685174)
+bones/2/rotation = Quaternion(-0.8127154, -0.10248517, -0.0626858, 0.57014126)
+bones/3/rotation = Quaternion(0.34518158, -0.0039381017, 0.0289113, 0.9380823)
+bones/4/rotation = Quaternion(-0.1996061, -0.008291717, 0.08568377, 0.9760876)
+bones/5/rotation = Quaternion(-0.80651414, 0.10634776, 0.069403395, 0.57741535)
+bones/6/rotation = Quaternion(0.3278058, 0.0039643547, -0.027455945, 0.94433784)
+bones/7/rotation = Quaternion(-0.18931444, 0.011411717, -0.09987029, 0.9767578)
+bones/8/rotation = Quaternion(0.99311376, -0.004847256, -0.0003283629, -0.117053956)
+bones/10/rotation = Quaternion(-0.75852674, 0.0036983285, -0.00025529994, 0.6516315)
+bones/11/rotation = Quaternion(0.9805845, 0.18239756, 0.029989097, -0.06546611)
+bones/12/rotation = Quaternion(-0.34574017, 0.006667157, -0.02767489, 0.93789846)
+bones/13/rotation = Quaternion(-0.046838332, -0.11810911, 0.21977563, 0.967241)
+bones/18/rotation = Quaternion(-8.708153e-08, -0.03257706, -2.1321307e-06, 0.9994693)
+bones/20/rotation = Quaternion(0.97729117, -0.2042567, -0.02209633, -0.051893502)
+bones/21/rotation = Quaternion(-0.34983745, -0.0066571147, 0.028003024, 0.93636817)
+bones/22/rotation = Quaternion(-0.027985744, -0.058043007, -0.08567954, 0.9942369)
+bones/28/rotation = Quaternion(2.2140037e-07, -0.12997131, 2.1485998e-06, 0.99151784)
 
 [node name="TerrainManager" type="Node3D" parent="." unique_id=1733999113]
 script = ExtResource("8_344ge")
-noise_frequency = 0.005
-resolution = 48
-height = 48.0
 
 [editable path="Explorer"]
 [editable path="Explorer/Mesh"]

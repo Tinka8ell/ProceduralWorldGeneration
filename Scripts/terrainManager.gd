@@ -22,18 +22,18 @@ var chunks := {}
 var waterChunk: PackedScene
 
 # Perlin noise parameters
-@export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.1
+@export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.005
 @export var noise_seed := 12345
 @export var noise_offset := Vector3.ZERO
 @export var playerLocation := Vector3(0, 0, 0)
 
 # Chuck adjustable parameters
-@export_range(4, 256, 4) var resolution := 32:
+@export_range(4, 256, 4) var resolution := 48:
 	set(new_resolution):
 		resolution = new_resolution
 		#update_mesh()
 
-@export_range(4.0, 128.0, 4.0) var height := 64.0:
+@export_range(4.0, 128.0, 4.0) var height := 48.0:
 	set(new_height):
 		height = new_height
 
