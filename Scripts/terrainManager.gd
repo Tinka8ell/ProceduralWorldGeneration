@@ -69,12 +69,12 @@ func _process(_delta: float) -> void:
 	if player:
 		playerLocation = player.global_position
 		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
-		for offset in CLOSE_GRID:
-			var chunk := findChunk(playerIndex + offset)
-			if not chunk:
-				print("Creating chunk ", getChunkName(playerIndex + offset), " -", playerLocation)
-				createTerrainChunk(playerIndex + offset)
-				break
+	for offset in CLOSE_GRID:
+		var chunk := findChunk(playerIndex + offset)
+		if not chunk:
+			print("Creating chunk ", getChunkName(playerIndex + offset), " -", playerLocation)
+			createTerrainChunk(playerIndex + offset)
+			break
 	
 func findChunk(index: Vector2i) -> MeshInstance3D:
 	var chunkName := getChunkName(index)
