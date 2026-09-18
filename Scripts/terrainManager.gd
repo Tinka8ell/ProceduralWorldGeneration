@@ -1,31 +1,50 @@
 extends Node
 
+# offsets to nearest chunk indexes, starting from where we are
+const CLOSE_GRID = [
+	Vector2i(0, 0),
+	Vector2i(-1, 0),
+	Vector2i(1, 0),
+	Vector2i(0, -1),
+	Vector2i(0, 1),
+	Vector2i(-1, -1),
+	Vector2i(1, 1),
+	Vector2i(1, -1),
+	Vector2i(-1, 1)
+]
 const size := 256.0
 var noise: FastNoiseLite
 var terrainShader: Shader
+var waterShader: Shader
 var color_gradient
 var noise_texture: NoiseTexture2D
 var chunks := {}
+var waterChunk: PackedScene
 
 # Perlin noise parameters
-@export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.1
+@export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.005
 @export var noise_seed := 12345
 @export var noise_offset := Vector3.ZERO
+@export var playerLocation := Vector3(0, 0, 0)
 
 # Chuck adjustable parameters
-@export_range(4, 256, 4) var resolution := 32:
+@export_range(4, 256, 4) var resolution := 48:
 	set(new_resolution):
 		resolution = new_resolution
 		#update_mesh()
 
-@export_range(4.0, 128.0, 4.0) var height := 64.0:
+@export_range(4.0, 128.0, 4.0) var height := 48.0:
 	set(new_height):
 		height = new_height
+
+var player: Player
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	print("Chunk on ready called")
-
+	player = get_parent().find_child("Explorer")
+	if player:
+		print("Found the player")
 	noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	noise.frequency = noise_frequency
@@ -35,34 +54,32 @@ func _ready() -> void:
 	
 	color_gradient = preload("res://Terrain/gradient_texture.tres")
 	terrainShader = preload("res://Terrain/terrain.gdshader")
+	waterShader = preload("res://Water/WaterShader.tres")
+	waterChunk = preload("res://Scenes/WaterChunk.tscn")
 	
 	noise_texture = NoiseTexture2D.new()
 	noise_texture.noise = noise
 	noise_texture.as_normal_map = true
 	noise_texture.seamless = true
+	return
 
-	createTerrainChunk(Vector2i(0, 0))
-	createTerrainChunk(Vector2i(0, 1))
-	createTerrainChunk(Vector2i(1, 1))
-	createTerrainChunk(Vector2i(1, 0))
-	createTerrainChunk(Vector2i(1, -1))
-	createTerrainChunk(Vector2i(0, -1))
-	createTerrainChunk(Vector2i(-1, -1))
-	createTerrainChunk(Vector2i(-1, 0))
-	createTerrainChunk(Vector2i(-1, 1))
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta: float) -> void:
+	var playerIndex := Vector2i(0, 0)
+	if player:
+		playerLocation = player.global_position
+		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
+		for offset in CLOSE_GRID:
+			var chunk := findChunk(playerIndex + offset)
+			if not chunk:
+				print("Creating chunk ", getChunkName(playerIndex + offset), " -", playerLocation)
+				createTerrainChunk(playerIndex + offset)
+				break
 	
-	# Checking for presence of a chunk?
-	findChunk(Vector2i(1, -1))
-	findChunk(Vector2i(-7, 30))
-	
-func findChunk(index: Vector2i) -> bool:
+func findChunk(index: Vector2i) -> MeshInstance3D:
 	var chunkName := getChunkName(index)
 	var chunk: MeshInstance3D = chunks.get(chunkName)
-	if chunk:
-		print("Found ", chunkName)
-		return true
-	print("Not found ", chunkName)
-	return false
+	return chunk
 
 func getChunkName(index: Vector2i) -> String:
 	return "Chunk_" + str(index.x) + "_" + str(index.y)
@@ -72,12 +89,10 @@ func createTerrainChunk(index: Vector2i) -> void:
 	var chunk := MeshInstance3D.new()
 	var chunkName := getChunkName(index)
 	chunk.name = chunkName
-	var transform := chunk.transform
-	print("Name: ", chunk.name, " - ", transform)
 	var move := Vector3(index.x * size, 0.0, index.y * size)
 	print("Move: ", move)
-	chunk.translate(move)
-	print("Name: ", chunk.name, " - ", chunk.transform)
+	chunk.position += move
+	print("Name: ", chunk.name, " - ", chunk.position)
 	
 	print("Creating Material")
 	var meshMaterial = ShaderMaterial.new()
@@ -89,6 +104,7 @@ func createTerrainChunk(index: Vector2i) -> void:
 	add_child(chunk)
 	chunks.set(chunkName, chunk)
 	update_mesh(chunk, meshMaterial)
+	addWaterToChunk(chunk)
 
 func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
 	if not noise or not chunk:
@@ -108,17 +124,16 @@ func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
 		var vertex := vertex_array[i]
 		var normal := Vector3.UP
 		var tangent := Vector3.RIGHT
-		if noise:
-			# have to add in mesh location / translation
-			vertex.y = get_height(vertex.x + offset.x, vertex.z + offset.z)
-			normal = get_normal(vertex.x + offset.x, vertex.z + offset.z)
-			tangent = normal.cross(Vector3.UP)
+		# have to add in mesh location / translation
+		vertex.y = get_height(vertex.x + offset.x, vertex.z + offset.z)
+		normal = get_normal(vertex.x + offset.x, vertex.z + offset.z)
+		tangent = normal.cross(Vector3.UP)
 		vertex_array[i] = vertex
 		normal_array[i] = normal
 		tangent_array[4 * i] = tangent.x
 		tangent_array[4 * i + 1] = tangent.y
 		tangent_array[4 * i + 2] = tangent.z
-	
+
 	var array_mesh := ArrayMesh.new()
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, plane_arrays)
 	array_mesh.surface_set_material(0, meshMaterial)
@@ -139,3 +154,13 @@ func get_normal(x: float, y: float) -> Vector3:
 		(get_height(x, y + epsilon) - get_height(x, y - epsilon)) / (2.0 * epsilon),
 	)
 	return normal.normalized()
+
+func addWaterToChunk(chunk: MeshInstance3D) -> void:
+	if not waterChunk or not chunk:
+		return
+	print("Adding Water")
+	var water = waterChunk.instantiate()
+	var move := Vector3(0, -12, 0)
+	water.position += move
+	chunk.add_child(water)
+	return
