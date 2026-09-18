@@ -13,7 +13,8 @@ const CLOSE_GRID = [
 	Vector2i(-1, 1)
 ]
 const size := 256.0
-var noise: FastNoiseLite
+var terrainNoise: FastNoiseLite
+var islandNoise: FastNoiseLite
 var terrainShader: Shader
 var waterShader: Shader
 var color_gradient
@@ -21,11 +22,11 @@ var noise_texture: NoiseTexture2D
 var chunks := {}
 var waterChunk: PackedScene
 
-# Perlin noise parameters
+# Perlin Noise parameters
 @export_range(0.0, 1.0, 0.001, "0 to 1 - lower is smoother") var noise_frequency := 0.005
 @export var noise_seed := 12345
 @export var noise_offset := Vector3.ZERO
-@export var playerLocation := Vector3(0, 0, 0)
+@export var playerLocation := Vector3(200, 48, 500) # from current saettings
 
 # Chuck adjustable parameters
 @export_range(4, 256, 4) var resolution := 48:
@@ -38,31 +39,26 @@ var waterChunk: PackedScene
 		height = new_height
 
 var player: Player
-var isMap: bool
-var scale := 1.0
+var scale := 10.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	print("Chunk on ready called")
-	isMap = name == "IslandManager"
-	print(name, " isMap = ", isMap)
 	
-	var move := Vector3(16 * size, 0.0, 0.0)
-	if isMap:
-		move = Vector3(-16 * size, 0.0, 0.0)
-	self.position += move
-	if isMap:
-		scale = 10.0
-
 	player = get_parent().find_child("Explorer")
 	if player:
 		print("Found the player")
-	noise = FastNoiseLite.new()
-	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	noise.frequency = noise_frequency / scale
-	noise.seed = noise_seed
-	noise.offset = noise_offset
-	print("noise created")
+	terrainNoise = FastNoiseLite.new()
+	terrainNoise.noise_type = FastNoiseLite.TYPE_PERLIN
+	terrainNoise.frequency = noise_frequency
+	terrainNoise.seed = noise_seed
+	terrainNoise.offset = noise_offset
+	islandNoise = FastNoiseLite.new()
+	islandNoise.noise_type = FastNoiseLite.TYPE_PERLIN
+	islandNoise.frequency = noise_frequency / scale
+	islandNoise.seed = noise_seed
+	islandNoise.offset = noise_offset
+	print("Noise created")
 	
 	color_gradient = preload("res://Terrain/gradient_texture.tres")
 	terrainShader = preload("res://Terrain/terrain.gdshader")
@@ -70,14 +66,14 @@ func _ready() -> void:
 	waterChunk = preload("res://Scenes/WaterChunk.tscn")
 	
 	noise_texture = NoiseTexture2D.new()
-	noise_texture.noise = noise
+	noise_texture.noise = terrainNoise
 	noise_texture.as_normal_map = true
 	noise_texture.seamless = true
 	return
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
-	var playerIndex := Vector2i(0, 0)
+	var playerIndex := Vector2i(1, 4)
 	if player:
 		playerLocation = player.global_position
 		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
@@ -131,7 +127,7 @@ func createTerrainChunk(index: Vector2i) -> void:
 	addWaterToChunk(chunk)
 
 func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
-	if not noise or not chunk:
+	if not terrainNoise or not chunk:
 		return
 	var plane := PlaneMesh.new()
 	plane.subdivide_depth = resolution
@@ -168,10 +164,9 @@ func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
 	print("Made collision")
 
 func get_height(x: float, y: float) -> float:
-	if isMap:
-		return clamp(noise.get_noise_2d(x, y) * height * scale -2 * height, -height, height)
-	else:
-		return noise.get_noise_2d(x, y) * height
+	var islandOffset: float = clampf(islandNoise.get_noise_2d(x, y) * height * scale -2 * height, -height, height)
+	return clampf(islandOffset - height + terrainNoise.get_noise_2d(x, y) * height, -height/2, height)
+	#return clampf(islandOffset + terrainNoise.get_noise_2d(x, y) * height, -height, height)
 
 func get_normal(x: float, y: float) -> Vector3:
 	var epsilon := size / resolution
