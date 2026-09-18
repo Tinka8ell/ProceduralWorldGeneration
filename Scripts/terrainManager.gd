@@ -38,16 +38,28 @@ var waterChunk: PackedScene
 		height = new_height
 
 var player: Player
+var isMap: bool
+var scale := 1.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	print("Chunk on ready called")
+	isMap = name == "IslandManager"
+	print(name, " isMap = ", isMap)
+	
+	var move := Vector3(16 * size, 0.0, 0.0)
+	if isMap:
+		move = Vector3(-16 * size, 0.0, 0.0)
+	self.position += move
+	if isMap:
+		scale = 10.0
+
 	player = get_parent().find_child("Explorer")
 	if player:
 		print("Found the player")
 	noise = FastNoiseLite.new()
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
-	noise.frequency = noise_frequency
+	noise.frequency = noise_frequency / scale
 	noise.seed = noise_seed
 	noise.offset = noise_offset
 	print("noise created")
@@ -69,6 +81,18 @@ func _process(_delta: float) -> void:
 	if player:
 		playerLocation = player.global_position
 		playerIndex = Vector2i(roundi(playerLocation.x / size), roundi(playerLocation.z / size))
+	createTerainArea(playerIndex)
+	if not player:
+		for offset in CLOSE_GRID:
+			createMapArea(playerIndex + 7 * offset)
+		
+
+func createMapArea(playerIndex: Vector2i) -> void:
+	for offset in CLOSE_GRID:
+		createTerainArea(playerIndex + 3 * offset)
+		
+
+func createTerainArea(playerIndex: Vector2i) -> void:
 	for offset in CLOSE_GRID:
 		var chunk := findChunk(playerIndex + offset)
 		if not chunk:
@@ -144,7 +168,10 @@ func update_mesh(chunk: MeshInstance3D, meshMaterial: ShaderMaterial) -> void:
 	print("Made collision")
 
 func get_height(x: float, y: float) -> float:
-	return noise.get_noise_2d(x, y) * height
+	if isMap:
+		return clamp(noise.get_noise_2d(x, y) * height * scale -2 * height, -height, height)
+	else:
+		return noise.get_noise_2d(x, y) * height
 
 func get_normal(x: float, y: float) -> Vector3:
 	var epsilon := size / resolution
